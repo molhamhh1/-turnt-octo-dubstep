@@ -1,0 +1,367 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>دورة اكتمال القمر </title>
+<style type="text/css">
+<!--a {text-decoration: none}
+	a:link {color:#FFFFFF}
+	a:active {color:#CCCCCC}
+	a:visited {color:#FFFFFF}
+	a:hover {color:#33CCFF}
+.Time {  font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #FFCC00; font-weight: bold; line-height: 14px}
+.App_title { font-family: Arial, Helvetica, sans-serif; font-size: 16px; font-style: normal; line-height: normal; color: #FFFFFF ; font-weight: bold}
+.form {  font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: normal; font-weight: normal}
+.calculate {  font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: normal; font-weight: bold}
+.small {  font-family: Arial, Helvetica, sans-serif; font-size: 9px; font-style: normal; color: #FFFFFF}
+-->
+</style>
+<script language="JavaScript">
+<!-- Hide from browsers that do not support JavaScript
+//
+//     Moon-phase calculation
+//     Roger W. Sinnott, Sky & Telescope, June 16, 2006.
+//
+var jd=0
+//
+// ---------------------------------------------------------------------
+//
+function setup() {
+  var nowdate = new Date();
+  var day = nowdate.getDate();
+  var month = nowdate.getMonth();
+  var year = nowdate.getFullYear();
+  document.moonfaseBox.yearf.value = year;
+  document.moonfaseBox.monthf.selectedIndex = month;
+  document.moonfaseBox.dayf.selectedIndex = day - 1;
+  }
+//
+// ---------------------------------------------------------------------
+//
+function proper_ang(big)
+{
+with (Math)
+{
+var tmp = 0;
+if (big > 0)
+{
+tmp = big / 360.0;
+tmp = (tmp - floor(tmp)) * 360.0;
+}
+else
+{
+tmp = ceil(abs(big / 360.0));
+tmp = big + tmp * 360.0;
+}
+}
+return tmp;
+}
+//
+// ---------------------------------------------------------------------
+//
+function daysInFebruary (year) {
+  if (year > 1582) {
+     return (((year % 4 == 0) && ( (!(year % 100 == 0)) || (year % 400 == 0))) ? 29 : 28 );
+     }
+  else {
+     return ((year % 4 == 0) ? 29 : 28 );
+  }
+}  
+//
+// ---------------------------------------------------------------------
+// 
+function DaysArray(n)
+{
+for (var i = 1; i <= n; i++)
+{
+this[i] = 31
+if (i==4 || i==6 || i==9 || i==11) {this[i] = 30}
+if (i==2) {this[i] = 29}
+} 
+return this;
+}
+// 
+// ---------------------------------------------------------------------
+// 
+function isDate()
+{
+var daysInMonth = DaysArray(12)
+var monthIdx = document.moonfaseBox.monthf.selectedIndex;
+var month = eval(document.moonfaseBox.monthf.options[monthIdx].value);
+var dayIdx = document.moonfaseBox.dayf.selectedIndex;
+var day = eval(document.moonfaseBox.dayf.options[dayIdx].value);
+var yearff = document.moonfaseBox.yearf.value
+
+if (yearff == "") {
+   alert("رجاء ادخل السنة");
+   document.moonfaseBox.yearf.focus();
+   return false;
+   }
+
+if (isNaN(yearff)) {
+   alert("رجاء ادخل السنة مسموح فقط بالارقام.");
+   document.moonfaseBox.yearf.focus();
+   return false;
+   }
+
+var year = eval(yearff)
+
+if (year == 0) {
+   alert("نأسف ! ليس هناك سنة برقم 0 قم بوضع رقم 1 واضغط  'BC' اذا كان هذا ما تقصده.")
+   document.moonfaseBox.yearf.focus();
+   return false;
+   }
+
+if (year < 0 ) {
+  alert("نأسف!   لاتضع إشارة ناقص في سنة.  بدلا من ذلك  اضغط  'BC' وقم بإنقاص قيمة السنة .")
+  document.moonfaseBox.yearf.focus();
+  return false;
+  }
+
+var eraObj = document.getElementsByName("adbc");
+    for (var i = 0; i < eraObj.length; i++) {
+          if (eraObj[i].checked) {
+            era = eraObj[i].value;
+            }
+       }
+    if (era == 0) year = 1 - year
+
+// Note:  From here on, in this function only, 'year' is the astronomical year with sign!! 
+if (month == 2 && day == 29 && day > daysInFebruary(year)) {
+  alert("نأسف ! ليست سنة كبيسة شباط  29يوم")
+  return false;
+  }
+
+if (day > daysInMonth[month]) {
+  alert("عذراً!  الرجاء ادخل رقم صحيح لليوم.")
+  return false;
+  }
+
+if (year==1582 && month==10 && day>4 && day<15) {
+  alert("Invalid date.  In the Gregorian calendar reform, October 4, 1582, was immediately followed by October 15, 1582.")
+  return false;
+  }
+
+if (year < -3999) {
+  alert("السنة التي ادخلتها قديمة الرجاء الدخل سنة قبل  4001 BC.")
+  return false;
+  }
+
+if (year > 8000) {
+  alert("السنة التي ادخلتها بعيدة جدا في المستقبل ادخل سنة قبل  AD 8001.")
+  return false;
+  }
+
+if ((year < 100) && (year > 0)) {
+  alert("Caution!  You've entered a year prior to AD 100.  If you intended a modern date, be sure 'AD' is clicked and enter all four digits of the year.  If you really did mean an early historical date in the Julian calendar, the Moon's phase will be correctly shown.")
+  }
+
+return true;
+}
+// 
+// ---------------------------------------------------------------------
+// 
+function ValidateForm()
+{
+if (isDate()==false) return false
+jdn()
+moonElong()
+return true
+}
+//
+// ---------------------------------------------------------------------
+//
+function jdn() {
+  var now_date = new Date();
+  zone = now_date.getTimezoneOffset() / 1440;
+
+  var monthIdx = document.moonfaseBox.monthf.selectedIndex;
+  var mm = eval(document.moonfaseBox.monthf.options[monthIdx].value);
+
+  var dayIdx = document.moonfaseBox.dayf.selectedIndex;
+  var dd = eval(document.moonfaseBox.dayf.options[dayIdx].value);
+
+  var yy = eval(document.moonfaseBox.yearf.value);
+     with (Math) {
+     var yyy=yy;
+     var eraObj = document.getElementsByName("adbc");
+          for (var i = 0; i < eraObj.length; i++) {
+               if (eraObj[i].checked) {
+                  era = eraObj[i].value;
+               }
+            }
+         if (era == 0) yyy = 1 - yy
+     var mmm = mm;
+     if (mm < 3) {
+       yyy = yyy - 1;
+       mmm = mm + 12;
+       }
+     var day = dd + zone + 0.5;
+     var a = floor(yyy/100);
+     var b = 2 - a + floor(a/4);
+     jd = floor(365.25*yyy) + floor(30.6001*(mmm+1)) + day + 1720994.5;
+     if (jd > 2299160.4999999) jd = jd + b;
+     }
+     // document.moonfaseBox.jdnum.value = jd;
+}
+//
+// ---------------------------------------------------------------------
+//
+function moonElong() {
+   with (Math) {
+   var dr = PI / 180
+   var rd = 1 / dr 
+   var meeDT = pow((jd - 2382148), 2) / (41048480*86400)
+   var meeT = (jd + meeDT - 2451545.0) / 36525
+   var meeT2 = pow(meeT,2)
+   var meeT3 = pow(meeT,3)
+   var meeD = 297.85 + (445267.1115*meeT) - (0.0016300*meeT2) + (meeT3/545868)
+       meeD = proper_ang(meeD) * dr
+   var meeM1 = 134.96 + (477198.8676*meeT) + (0.0089970*meeT2) + (meeT3/69699)
+       meeM1 = proper_ang(meeM1) * dr
+   var meeM = 357.53 + (35999.0503*meeT)
+       meeM = proper_ang(meeM) * dr
+   var elong = meeD*rd + 6.29*sin(meeM1)
+       elong = elong   - 2.10*sin(meeM)
+       elong = elong   + 1.27*sin(2*meeD - meeM1)
+       elong = elong   + 0.66*sin(2*meeD)
+       elong = proper_ang(elong)
+       elong = round(elong)
+   var moonNum = ((elong + 6.43) / 360) * 28
+       moonNum = floor(moonNum)
+       if (moonNum == 28) moonNum = 0
+       if (moonNum < 10) moonNum = "0" + moonNum
+   var moonImage = "image/moon" + moonNum.toString() + ".gif"
+   }
+   var moonPhase = " ولادة القمر الجديد"
+     if ((moonNum>03) && (moonNum<11)) moonPhase = " الربع الاول"
+     if ((moonNum>10) && (moonNum<18)) moonPhase = " القمر المكتمل"
+     if ((moonNum>17) && (moonNum<25)) moonPhase = " الربع الاخير"
+  
+     if ((moonNum==01)||(moonNum==08)||(moonNum==15)||(moonNum==22)) {
+           moonPhase = " 1 يوم مضى على" + moonPhase
+           }
+     if ((moonNum==02)||(moonNum==09)||(moonNum==16)||(moonNum==23)) {
+           moonPhase = " 2 يوم مضى على" + moonPhase
+           }
+     if ((moonNum==03)||(moonNum==10)||(moonNum==17)||(moonNum==24)) {
+           moonPhase = " 3 ايام مضت على " + moonPhase
+           }
+     if ((moonNum==04)||(moonNum==11)||(moonNum==18)||(moonNum==25)) {
+           moonPhase = " 3 يوم قبل " + moonPhase
+           }
+     if ((moonNum==05)||(moonNum==12)||(moonNum==19)||(moonNum==26)) {
+           moonPhase = " 2 يوم قبل " + moonPhase
+           }
+     if ((moonNum==06)||(moonNum==13)||(moonNum==20)||(moonNum==27)) {
+           moonPhase = " 1 يوم قبل " + moonPhase
+           }
+   
+  document.moonfaseBox.moonphasetext.value = moonPhase   
+  document.slideshow.src = moonImage
+  // document.moonfaseBox.elongation.value = elong    
+}
+// Finish hiding
+-->
+</script>
+</head>
+<body bgcolor="#000000" onLoad="setup()">
+<form name="moonfaseBox" action="#">
+<table border="0" cellpadding="0" cellspacing="0" width="320" bgcolor="#000000">
+<tr> 
+<td colspan="2" align="left" valign="top">&nbsp;</td>
+<td width="240" valign="middle"><span class="Time">&nbsp;<font class="App_title"></font></span><font class="App_title">اكتمال القمر في اليوم</font></td>
+<td width="12">&nbsp;</td>
+</tr>
+<tr> 
+<td>&nbsp;</td>
+<td colspan="3">&nbsp;</td>
+</tr>
+<tbody> 
+<tr> 
+<td>&nbsp;</td>
+<td align="right"><font class="time">Month:</font>&nbsp;</td>
+<td><font class="form"> 
+<select name="monthf" class="form">
+<option value="1">كانون الثاني</option>
+<option value="2">شباط</option>
+<option value="3">اذار</option>
+<option value="4">نيسان</option>
+<option value="5">ايار</option>
+<option value="6">حزيران</option>
+<option value="7">تموز</option>
+<option value="8">اب</option>
+<option value="9">ايلول</option>
+<option value="10">تشرين الاول</option>
+<option value="11">تشرين الثاني</option>
+<option value="12">كانون الاول</option>
+</select>
+&nbsp;&nbsp;&nbsp;</font> <font class="time">Day:</font>&nbsp;<font class="form"> 
+<select name="dayf" class="form">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+<option value="6">6</option>
+<option value="7">7</option>
+<option value="8">8</option>
+<option value="9">9</option>
+<option value="10">10</option>
+<option value="11">11</option>
+<option value="12">12</option>
+<option value="13">13</option>
+<option value="14">14</option>
+<option value="15">15</option>
+<option value="16">16</option>
+<option value="17">17</option>
+<option value="18">18</option>
+<option value="19">19</option>
+<option value="20">20</option>
+<option value="21">21</option>
+<option value="22">22</option>
+<option value="23">23</option>
+<option value="24">24</option>
+<option value="25">25</option>
+<option value="26">26</option>
+<option value="27">27</option>
+<option value="28">28</option>
+<option value="29">29</option>
+<option value="30">30</option>
+<option value="31">31</option>
+</select>
+</font> </td>
+<td>&nbsp;</td>
+</tr>
+<tr> 
+<td>&nbsp;</td>
+<td colspan="3">&nbsp;</td>
+</tr>
+<tr> 
+<td>&nbsp;</td>
+<td align="right" ><font class="time">سنة:</font>&nbsp;</td>
+<td class="Time"> 
+<input name="yearf" maxlength="4" size="4" type="text" value="" class="form">
+<input id="ad" name="adbc" value="1" checked type="radio">
+<span class="time">AD</span> 
+<input id="bc" name="adbc" value="0" type="radio">
+<span class="time">BC</span> &nbsp;&nbsp;&nbsp;&nbsp; 
+<input class="form" value="حساب" onClick="return ValidateForm()" name="button" type="button">
+</td>
+<td>&nbsp;</td>
+</tr>
+<tr> 
+<td colspan="4" align="center"><img name="slideshow" src="image/moon_ani.gif"></td>
+</tr>
+<tr> 
+<td colspan="4" align="center" valign="top" class="10_on11_arial"><span class="time">اكتمال القمر: 
+&nbsp;</span> 
+<input name="moonphasetext" size="31" value=". . ." type="text" class="form"  onFocus="this.blur()">
+<br>
+&nbsp;</td>
+</tr>
+</tbody> 
+</table>
+</form>
+</body>
+</html>
